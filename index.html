@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MaticDrop — Free MATIC Faucet</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0f;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a0a2e, #0d1b2a);
+      border-bottom: 1px solid #7b2fff33;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header .logo {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #a855f7;
+      letter-spacing: 1px;
+    }
+
+    header .logo span { color: #00e5ff; }
+
+    .hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+
+    .hero h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .hero h1 span { color: #a855f7; }
+
+    .hero p {
+      color: #888;
+      font-size: 1.05rem;
+      max-width: 520px;
+      margin: 0 auto 32px;
+    }
+
+    .faucet-card {
+      background: #111118;
+      border: 1px solid #7b2fff44;
+      border-radius: 16px;
+      max-width: 480px;
+      margin: 0 auto 48px;
+      padding: 36px 32px;
+      box-shadow: 0 0 40px #7b2fff22;
+    }
+
+    .reward-badge {
+      background: linear-gradient(135deg, #7b2fff22, #00e5ff11);
+      border: 1px solid #7b2fff55;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .reward-badge .amount {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #a855f7;
+    }
+
+    .reward-badge .label {
+      font-size: 0.85rem;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-group input {
+      width: 100%;
+      background: #0a0a0f;
+      border: 1px solid #7b2fff44;
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: #a855f7;
+    }
+
+    .btn-claim {
+      width: 100%;
+      background: linear-gradient(135deg, #7b2fff, #a855f7);
+      border: none;
+      border-radius: 10px;
+      padding: 15px;
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-claim:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-claim:active { transform: translateY(0); }
+    .btn-claim:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .status-msg {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.9rem;
+      min-height: 20px;
+      color: #00e5ff;
+    }
+
+    .status-msg.error { color: #ff4444; }
+
+    /* ── Revenue Layers ── */
+    .revenue-section {
+      max-width: 480px;
+      margin: 0 auto 48px;
+    }
+
+    .revenue-section h2 {
+      font-size: 1rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    /* Offer Wall */
+    .offer-wall {
+      background: #111118;
+      border: 1px solid #7b2fff33;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .offer-wall h3 {
+      font-size: 0.95rem;
+      color: #a855f7;
+      margin-bottom: 12px;
+    }
+
+    .offer-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #1a1a2e;
+    }
+
+    .offer-item:last-child { border-bottom: none; }
+
+    .offer-item .offer-name { font-size: 0.9rem; color: #ccc; }
+    .offer-item .offer-reward { font-size: 0.85rem; color: #00e5ff; font-weight: 600; }
+
+    .offer-btn {
+      background: #7b2fff22;
+      border: 1px solid #7b2fff55;
+      border-radius: 6px;
+      padding: 6px 14px;
+      color: #a855f7;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .offer-btn:hover { background: #7b2fff44; }
+
+    /* PTC Links */
+    .ptc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .ptc-card {
+      background: #111118;
+      border: 1px solid #00e5ff22;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+
+    .ptc-card:hover { border-color: #00e5ff55; }
+
+    .ptc-card .ptc-reward {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #00e5ff;
+    }
+
+    .ptc-card .ptc-label {
+      font-size: 0.75rem;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    /* Shortlinks */
+    .shortlink-list {
+      background: #111118;
+      border: 1px solid #7b2fff33;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .shortlink-list h3 {
+      font-size: 0.95rem;
+      color: #a855f7;
+      margin-bottom: 12px;
+    }
+
+    .shortlink-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #1a1a2e;
+    }
+
+    .shortlink-item:last-child { border-bottom: none; }
+    .shortlink-item .sl-name { font-size: 0.88rem; color: #ccc; }
+    .shortlink-item .sl-reward { font-size: 0.82rem; color: #a855f7; }
+
+    .sl-btn {
+      background: #a855f722;
+      border: 1px solid #a855f744;
+      border-radius: 6px;
+      padding: 5px 12px;
+      color: #a855f7;
+      font-size: 0.78rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .sl-btn:hover { background: #a855f744; }
+
+    /* Referral */
+    .referral-section {
+      background: linear-gradient(135deg, #1a0a2e, #0d1b2a);
+      border: 1px solid #7b2fff55;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .referral-section h3 { color: #a855f7; margin-bottom: 8px; }
+    .referral-section p { color: #888; font-size: 0.88rem; margin-bottom: 16px; }
+
+    .referral-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .ref-btn {
+      background: #7b2fff33;
+      border: 1px solid #7b2fff55;
+      border-radius: 8px;
+      padding: 10px;
+      color: #a855f7;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .ref-btn:hover { background: #7b2fff55; }
+    .ref-btn .ref-reward { color: #00e5ff; font-size: 0.78rem; display: block; margin-top: 2px; }
+
+    /* Ad placeholders */
+    .ad-banner {
+      background: #111118;
+      border: 1px solid #1a1a2e;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      color: #333;
+      font-size: 0.8rem;
+      margin-bottom: 16px;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      max-width: 480px;
+      margin: 0 auto 32px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: #111118;
+      border: 1px solid #7b2fff33;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-card .stat-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #a855f7;
+    }
+
+    .stat-card .stat-label {
+      font-size: 0.72rem;
+      color: #555;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: #333;
+      font-size: 0.78rem;
+      border-top: 1px solid #1a1a2e;
+    }
+
+    /* Adsterra banner slot */
+    #adsterra-banner {
+      max-width: 480px;
+      margin: 0 auto 24px;
+      min-height: 90px;
+      background: #111118;
+      border: 1px dashed #7b2fff33;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+      font-size: 0.78rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">Matic<span>Drop</span></div>
+    <div style="font-size:0.82rem;color:#555;">Free MATIC Every 15 Minutes</div>
+  </header>
+
+  <!-- Adsterra Banner (replace data-zone with your zone ID) -->
+  <div id="adsterra-banner">
+    <!-- ADSTERRA BANNER SLOT -->
+    <!-- <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> -->
+    [AD BANNER]
+  </div>
+
+  <div class="hero">
+    <h1>Claim Free <span>MATIC</span></h1>
+    <p>Enter your Polygon wallet address and claim free MATIC every 15 minutes. Complete offers to earn more.</p>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-value" id="stat-claims">24,891</div>
+      <div class="stat-label">Total Claims</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-users">3,204</div>
+      <div class="stat-label">Users Today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">0.05</div>
+      <div class="stat-label">MATIC / Claim</div>
+    </div>
+  </div>
+
+  <!-- Faucet Card -->
+  <div class="faucet-card">
+    <div class="reward-badge">
+      <div class="amount">0.05 MATIC</div>
+      <div class="label">Free every 15 minutes • Instant payout</div>
+    </div>
+
+    <div class="input-group">
+      <label>Your Polygon (MATIC) Wallet Address</label>
+      <input type="text" id="wallet-input" placeholder="0x..." autocomplete="off" />
+    </div>
+
+    <!-- 2captcha / hCaptcha slot -->
+    <div id="captcha-slot" style="margin-bottom:16px;min-height:78px;background:#0a0a0f;border:1px solid #7b2fff33;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#444;font-size:0.8rem;">
+      [CAPTCHA SLOT — wire 2captcha here]
+    </div>
+
+    <button class="btn-claim" id="claim-btn" onclick="handleClaim()">⚡ CLAIM MATIC</button>
+    <div class="status-msg" id="status-msg"></div>
+  </div>
+
+  <!-- Revenue Layers -->
+  <div class="revenue-section">
+
+    <!-- Adsterra mid-page -->
+    <div class="ad-banner">[AD SLOT — ADSTERRA MID PAGE]</div>
+
+    <!-- Offer Wall -->
+    <div class="offer-wall">
+      <h3>🎯 Complete Offers — Earn More MATIC</h3>
+      <div class="offer-item">
+        <span class="offer-name">Sign up for Coinbase</span>
+        <span class="offer-reward">+10.00 MATIC</span>
+        <a class="offer-btn" href="#" target="_blank" rel="noopener">START</a>
+      </div>
+      <div class="offer-item">
+        <span class="offer-name">Complete a Survey</span>
+        <span class="offer-reward">+2.50 MATIC</span>
+        <a class="offer-btn" href="#" target="_blank" rel="noopener">START</a>
+      </div>
+      <div class="offer-item">
+        <span class="offer-name">Watch a Video</span>
+        <span class="offer-reward">+0.50 MATIC</span>
+        <a class="offer-btn" href="#" target="_blank" rel="noopener">START</a>
+      </div>
+      <div class="offer-item">
+        <span class="offer-name">Install an App</span>
+        <span class="offer-reward">+1.00 MATIC</span>
+        <a class="offer-btn" href="#" target="_blank" rel="noopener">START</a>
+      </div>
+    </div>
+
+    <!-- PTC Grid -->
+    <h2>Paid to Click</h2>
+    <div class="ptc-grid">
+      <a class="ptc-card" href="#" target="_blank" rel="noopener">
+        <div class="ptc-reward">+0.003 MATIC</div>
+        <div class="ptc-label">Ad #1 — 5 seconds</div>
+      </a>
+      <a class="ptc-card" href="#" target="_blank" rel="noopener">
+        <div class="ptc-reward">+0.003 MATIC</div>
+        <div class="ptc-label">Ad #2 — 5 seconds</div>
+      </a>
+      <a class="ptc-card" href="#" target="_blank" rel="noopener">
+        <div class="ptc-reward">+0.003 MATIC</div>
+        <div class="ptc-label">Ad #3 — 5 seconds</div>
+      </a>
+      <a class="ptc-card" href="#" target="_blank" rel="noopener">
+        <div class="ptc-reward">+0.003 MATIC</div>
+        <div class="ptc-label">Ad #4 — 5 seconds</div>
+      </a>
+      <a class="ptc-card" href="#" target="_blank" rel="noopener">
+        <div class="ptc-reward">+0.003 MATIC</div>
+        <div class="ptc-label">Ad #5 — 5 seconds</div>
+      </a>
+      <a class="ptc-card" href="#" target="_blank" rel="noopener">
+        <div class="ptc-reward">+0.003 MATIC</div>
+        <div class="ptc-label">Ad #6 — 5 seconds</div>
+      </a>
+    </div>
+
+    <!-- Shortlinks -->
+    <div class="shortlink-list">
+      <h3>🔗 Shortlinks — Click & Earn</h3>
+      <div class="shortlink-item">
+        <span class="sl-name">Shortlink #1</span>
+        <span class="sl-reward">+0.002 MATIC</span>
+        <a class="sl-btn" href="#" target="_blank" rel="noopener">VISIT</a>
+      </div>
+      <div class="shortlink-item">
+        <span class="sl-name">Shortlink #2</span>
+        <span class="sl-reward">+0.002 MATIC</span>
+        <a class="sl-btn" href="#" target="_blank" rel="noopener">VISIT</a>
+      </div>
+      <div class="shortlink-item">
+        <span class="sl-name">Shortlink #3</span>
+        <span class="sl-reward">+0.002 MATIC</span>
+        <a class="sl-btn" href="#" target="_blank" rel="noopener">VISIT</a>
+      </div>
+      <div class="shortlink-item">
+        <span class="sl-name">Shortlink #4</span>
+        <span class="sl-reward">+0.002 MATIC</span>
+        <a class="sl-btn" href="#" target="_blank" rel="noopener">VISIT</a>
+      </div>
+      <div class="shortlink-item">
+        <span class="sl-name">Shortlink #5</span>
+        <span class="sl-reward">+0.002 MATIC</span>
+        <a class="sl-btn" href="#" target="_blank" rel="noopener">VISIT</a>
+      </div>
+    </div>
+
+    <!-- Referral -->
+    <div class="referral-section">
+      <h3>👥 Refer & Earn</h3>
+      <p>Sign up for these platforms through our links and earn big MATIC bonuses</p>
+      <div class="referral-grid">
+        <a class="ref-btn" href="#" target="_blank" rel="noopener">
+          Coinbase
+          <span class="ref-reward">+$10 bonus</span>
+        </a>
+        <a class="ref-btn" href="#" target="_blank" rel="noopener">
+          Binance
+          <span class="ref-reward">+$15 bonus</span>
+        </a>
+        <a class="ref-btn" href="#" target="_blank" rel="noopener">
+          Cointiply
+          <span class="ref-reward">+200 coins</span>
+        </a>
+        <a class="ref-btn" href="#" target="_blank" rel="noopener">
+          AdGateMedia
+          <span class="ref-reward">+0.50 MATIC</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Bottom ad -->
+    <div class="ad-banner">[AD SLOT — ADSTERRA BOTTOM]</div>
+
+  </div>
+
+  <footer>
+    MaticDrop &copy; 2026 &bull; Free MATIC Faucet &bull; Powered by Polygon Network
+  </footer>
+
+  <script>
+    // ── Faucet claim logic ──
+    const COOLDOWN_MS = 15 * 60 * 1000; // 15 minutes
+    const STORAGE_KEY = 'maticdrop_last_claim';
+
+    function handleClaim() {
+      const wallet = document.getElementById('wallet-input').value.trim();
+      const statusEl = document.getElementById('status-msg');
+      const btn = document.getElementById('claim-btn');
+
+      // Basic wallet validation
+      if (!wallet.match(/^0x[a-fA-F0-9]{40}$/)) {
+        statusEl.textContent = '⚠ Enter a valid Polygon wallet address (0x...)';
+        statusEl.className = 'status-msg error';
+        return;
+      }
+
+      // Cooldown check
+      const lastClaim = parseInt(localStorage.getItem(STORAGE_KEY) || '0');
+      const now = Date.now();
+      const elapsed = now - lastClaim;
+
+      if (elapsed < COOLDOWN_MS) {
+        const remaining = Math.ceil((COOLDOWN_MS - elapsed) / 60000);
+        statusEl.textContent = `⏳ Come back in ${remaining} minute(s)`;
+        statusEl.className = 'status-msg error';
+        return;
+      }
+
+      // Trigger claim
+      btn.disabled = true;
+      statusEl.textContent = '⏳ Processing claim...';
+      statusEl.className = 'status-msg';
+
+      // TODO: wire to backend payout API
+      setTimeout(() => {
+        localStorage.setItem(STORAGE_KEY, now.toString());
+        statusEl.textContent = '✅ 0.05 MATIC sent to your wallet!';
+        statusEl.className = 'status-msg';
+
+        // Update claim counter (cosmetic)
+        const el = document.getElementById('stat-claims');
+        el.textContent = (parseInt(el.textContent.replace(',', '')) + 1).toLocaleString();
+
+        btn.disabled = false;
+      }, 2000);
+    }
+
+    // Animate stats on load (cosmetic)
+    window.addEventListener('load', () => {
+      const claimsEl = document.getElementById('stat-claims');
+      const usersEl = document.getElementById('stat-users');
+      // Small random drift to look live
+      setInterval(() => {
+        const c = parseInt(claimsEl.textContent.replace(',', ''));
+        claimsEl.textContent = (c + Math.floor(Math.random() * 3)).toLocaleString();
+      }, 8000);
+    });
+  </script>
+
+</body>
+</html>
